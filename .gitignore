@@ -1,37 +1,72 @@
-HELP.md
-.gradle
+# --- Gradle / Build ---
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
+# --- IDEs ---
+# IntelliJ
+.idea/
 *.iws
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
+# STS / Eclipse
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# --- Logs / Dumps ---
+logs/
+*.log
+*.jfr
+*.hprof
+hs_err_pid*
+replay_pid*
+
+# --- OS / Editor junk ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# --- App config / secrets (로컬 전용일 때만) ---
+.env
+*.env*
+secrets/
+application-local.yml
+application-local.yaml
+application-local.properties
+
+# --- Runtime temp ---
+tmp/
+temp/
+
+# --- Redis / DB local data (있을 때만) ---
+dump.rdb
+appendonly.aof
+pgdata/
+
+# --- Frontend (모노레포일 때만) ---
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# --- IntelliJ run configs ---
+.run/
