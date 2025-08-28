@@ -1,12 +1,15 @@
 package com.practice.projectchat.domain;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
-
+@Getter
+@Setter
 @Table(name = "users")
 public class User {
 
