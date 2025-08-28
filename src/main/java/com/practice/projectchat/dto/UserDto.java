@@ -37,8 +37,8 @@ public class UserDto {
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SignupResponse {
         private Long userId;
         private String nickname;
