@@ -42,7 +42,10 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive:3.5.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive:3.5.3' //그냥 redis말고 reids-reactive
+    implementation 'org.flywaydb:flyway-core:11.11.1'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql:11.11.1'
+
 }
 
 tasks.named('test') {
