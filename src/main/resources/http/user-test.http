@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:8080
+
+@okLogin = tester10001
+@dupLogin = duplicate10001
+
+@okPassword = Abcd@1234567
+@badPassword = Abcd@9999999
+
+
+
+### 1) 회원가입 성공 → 201 Created
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "{{okLogin}}",
+  "password": "Abcd@1234567",
+  "nickname": "테스터"
+}
+
+
+### 2-1) 중복 테스트 - 첫 가입(성공) → 201
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "{{dupLogin}}",
+  "password": "Aa1@aaaa",
+  "nickname": "dup1"
+}
+
+
+### 2-2) 중복 테스트 - 같은 loginId로 재가입 → 보통 409(CONFLICT) 또는 400
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "{{dupLogin}}",
+  "password": "Aa1@aaaa",
+  "nickname": "dup2"
+}
+
+
+### 3) 유효성 오류 - loginId 대문자/기호 포함 → 400
+# 규칙: 소문자 영문+숫자만, 길이 4~20
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "Bad-Id",
+  "password": "Aa1@aaaa",
+  "nickname": "닉네임"
+}
+
+
+### 4) 유효성 오류 - loginId 길이 너무 짧음(3자) → 400
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "abc",
+  "password": "Aa1@aaaa",
+  "nickname": "닉"
+}
+
+
+### 5) 유효성 오류 - 비밀번호에 허용 안 된 특수문자(%) 포함 → 400
+# 허용 특수문자 집합: @ # $ ! ?
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "validid01",
+  "password": "Aa1%aaaa",
+  "nickname": "테스터"
+}
+
+
+### 6) 유효성 오류 - 비밀번호에서 특수문자 빠짐 → 400
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "validid02",
+  "password": "Aa1aaaaa",
+  "nickname": "테스터"
+}
+
+
+### 7) 유효성 오류 - 닉네임 길이 너무 짧음(1자) → 400
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "validid03",
+  "password": "Aa1@aaaa",
+  "nickname": "가"
+}
+
+
+### 8) 로그인 성공 → 200 OK (+ 토큰 변수 저장)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "{{okLogin}}",
+  "password": "{{okPassword}}"
+}
+
+
+### 9) 로그인 실패 - 비밀번호 불일치 → 401 (INVALID_CREDENTIALS)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "{{okLogin}}",
+  "password": "{{badPassword}}"
+}
+
+### 10) 로그인 실패 - 존재하지 않는 아이디(@Valid에 걸리지 않는 선에서) → 401 (INVALID_CREDENTIALS)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "no1such2user345",
+  "password": "{{okPassword}}"
+}
+
+### 11) 발급받은 토큰으로 /me → 200 OK
+GET {{baseUrl}}/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwiaXNzIjoicHJvamVjdGNoYXQiLCJpYXQiOjE3NTY0MzY1MjksImV4cCI6MTc1NjQzNjUzNCwibG9naW5JZCI6InRlc3RlcjEwMDAxIiwibmlja25hbWUiOiLthYzsiqTthLAiLCJyb2xlIjoiVVNFUiJ9.rJ8AaxuyrSUSicvZX5DN8272G68kegcuPsb-hQBYlh8
+# TOKEN_EXPIRED 원하면 application.yml에서 ttl시간 10s정도로 짧게 줄여놓고 테스트
+
+### 12) 토큰 없이 /me → 401 (UNAUTHORIZED)
+GET {{baseUrl}}/api/v1/users/me
+
+### 13) (참고) 깨진 토큰으로 /me → 401 (INVALID_TOKEN)
+GET {{baseUrl}}/api/v1/users/me
+Authorization: Bearer invalid.jwt.here

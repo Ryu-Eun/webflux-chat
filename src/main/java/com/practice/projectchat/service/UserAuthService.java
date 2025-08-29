@@ -57,6 +57,7 @@ public class UserAuthService {
                 .flatMap(user -> {
                     // 계정 상태에 따라 403 또는 401
                     switch (user.getStatus()) {
+                        //TODO: 아직 유저가 BLOCKED, DEACTIVATED, DELETED일때 로그인 시도하는 http테스트는 안해준 상태. 나중에 state 업데이트하는 api만들어지면 그때 테스트
                         case BLOCKED -> { // 운영자 차단
                             return Mono.error(new LockedException("ACCOUNT_BLOCKED"));
                         }
