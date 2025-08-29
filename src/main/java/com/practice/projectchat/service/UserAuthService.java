@@ -1,5 +1,6 @@
 package com.practice.projectchat.service;
 
+import com.practice.projectchat.config.JwtProvider;
 import com.practice.projectchat.domain.User;
 import com.practice.projectchat.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,16 @@ public class UserAuthService {
     // 컨트롤러 <-> 서비스 레이어 전용 타입
     public record SignupCommand(String loginId, String rawPassword, String nickname){}
     public record SignupResult(Long userId, String nickname, String friendCode){}
+    public record LoginCommand(String loginId, String rawPassword){}
+    public record LoginResult(String tokenType, String accessToken, long expiresAt) {}
+
 
     private static final int SAVE_RETRY_COUNT = 5;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UniqueFriendCodeService uniqueFriendCodeService;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public Mono<SignupResult> createUser(SignupCommand command) {
@@ -39,8 +44,32 @@ public class UserAuthService {
                             .flatMap(code -> trySave(buildUser(command.loginId, hashedPassword, command.nickname, code), 1));
                 })
                 .map(u -> new SignupResult(u.getId(), u.getNickname(), u.getFriendCode()));
+    }
+
+    @Transactional
+    public Mono<LoginResult> login(LoginCommand command) {
+
+        return userRepository.findByLoginId(command.loginId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.")))
+                .flatMap(user -> {
+                    var state = user.getStatus();
+                    if(state ==User.UserStatus.BLOCKED || state == User.UserStatus.DELETED || state == User.UserStatus.DEACTIVATED){
+                        return Mono.error(new IllegalStateException("로그인할 수 없는 계정입니다."));
+                    }
+                    if(!passwordEncoder.matches(command.rawPassword, user.getPasswordHash())){
+                        return Mono.error(new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
+                    }
+                    String token = jwtProvider.generateAccessToken(user);
+                    long expSec = jwtProvider.getExpiresAt(token).getEpochSecond(); // 남은 초단위 시간
+
+                    return Mono.just(new LoginResult("Bearer", token, expSec));
+                });
 
     }
+
+
+
+
 
     private Mono<User> trySave(User user, int attempt) {
         return userRepository.save(user)
