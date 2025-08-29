@@ -33,4 +33,20 @@ public class AuthController {
                 .map(body -> ResponseEntity.status(HttpStatus.CREATED).body(body)); // 201
     }
 
+    @PostMapping("/login")
+    public Mono<ResponseEntity<UserDto.LoginResponse>> login(@Valid @RequestBody UserDto.LoginRequest request){
+        var command = new UserAuthService.LoginCommand(
+                request.getLoginId().trim().toLowerCase(Locale.ROOT),
+                request.getPassword()
+        );
+
+        return userAuthService.login(command)
+                .map(r -> UserDto.LoginResponse.builder()
+                        .tokenType(r.tokenType())
+                        .accessToken(r.accessToken())
+                        .expiresAt(r.expiresAt())
+                        .build())
+                .map(ResponseEntity::ok);
+    }
+
 }
