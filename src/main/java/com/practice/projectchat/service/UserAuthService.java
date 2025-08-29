@@ -5,6 +5,9 @@ import com.practice.projectchat.domain.User;
 import com.practice.projectchat.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,21 +53,32 @@ public class UserAuthService {
     public Mono<LoginResult> login(LoginCommand command) {
 
         return userRepository.findByLoginId(command.loginId)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.")))
+                .switchIfEmpty(Mono.error(new BadCredentialsException("INVALID_CREDENTIALS")))
                 .flatMap(user -> {
-                    var state = user.getStatus();
-                    if(state ==User.UserStatus.BLOCKED || state == User.UserStatus.DELETED || state == User.UserStatus.DEACTIVATED){
-                        return Mono.error(new IllegalStateException("로그인할 수 없는 계정입니다."));
+                    // 계정 상태에 따라 403 또는 401
+                    switch (user.getStatus()) {
+                        case BLOCKED -> { // 운영자 차단
+                            return Mono.error(new LockedException("ACCOUNT_BLOCKED"));
+                        }
+                        case DEACTIVATED -> { // 사용자 비활성(탈퇴예약)
+                            return Mono.error(new DisabledException("ACCOUNT_DEACTIVATED"));
+                        }
+                        case DELETED -> { // 존재 노출 방지 위해 동일하게 401로 처리
+                            return Mono.error(new BadCredentialsException("INVALID_CREDENTIALS"));
+                        }
                     }
-                    if(!passwordEncoder.matches(command.rawPassword, user.getPasswordHash())){
-                        return Mono.error(new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
+                    // 비밀번호 불일치 → 401
+                    if (!passwordEncoder.matches(command.rawPassword, user.getPasswordHash())) {
+                        return Mono.error(new BadCredentialsException("INVALID_CREDENTIALS"));
                     }
+
+                    // 토큰 발급
                     String token = jwtProvider.generateAccessToken(user);
-                    long expSec = jwtProvider.getExpiresAt(token).getEpochSecond(); // 남은 초단위 시간
+                    long expSec = jwtProvider.getExpiresAt(token).getEpochSecond(); // 만료 epoch seconds
 
                     return Mono.just(new LoginResult("Bearer", token, expSec));
-                });
 
+                });
     }
 
 
