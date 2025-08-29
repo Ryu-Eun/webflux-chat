@@ -1,9 +1,12 @@
 package com.practice.projectchat.dto;
 
+import com.practice.projectchat.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.Instant;
 
 public class UserDto {
 
@@ -39,6 +42,22 @@ public class UserDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class LoginRequest{
+        @NotBlank
+        @Size(min = 4, max = 32)
+        @Pattern(regexp = "^[a-z0-9]{4,32}$", message = "loginId는 소문자 영문/숫자만 4~32자입니다.")
+        private String loginId;
+
+        @NotBlank
+        @Size(min = 8, max = 64)
+        private String password;
+    }
+
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SignupResponse {
         private Long userId;
         private String nickname;
@@ -53,5 +72,41 @@ public class UserDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class LoginResponse {
+        private String tokenType;   // Bearer
+        private String accessToken; // JWT토큰
+        private long expiresAt;     // 만료 시각
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class MeResponse {
+        private Long userId;
+        private String loginId;
+        private String nickname;
+        private String friendCode;
+        private String status;
+        private Instant createdAt;
+        private Instant updatedAt;
+
+        public static UserDto.MeResponse toMeResponse(User u) {
+            return UserDto.MeResponse.builder()
+                    .userId(u.getId())
+                    .loginId(u.getLoginId())
+                    .nickname(u.getNickname())
+                    .friendCode(u.getFriendCode())
+                    .status(u.getStatus().name())
+                    .createdAt(u.getCreatedAt())
+                    .updatedAt(u.getUpdatedAt())
+                    .build();
+        }
+    }
+
 
 }
