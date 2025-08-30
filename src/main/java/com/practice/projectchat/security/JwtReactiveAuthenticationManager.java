@@ -49,8 +49,8 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
                 .filter(u -> u.getStatus() == User.UserStatus.ACTIVE)
                 // UsernamePasswordAuthenticationToken: 인증이 끝난 사용자 정보 담을때도 사용함
                 .map(u -> new UsernamePasswordAuthenticationToken(
-                        String.valueOf(u.getId()),
-                        null,
+                        String.valueOf(u.getId()), // principal = userId
+                        null, // credentials 없음
                         // SimpleGrantedAuthority: 내부에 문자열 하나만 들고 있음
                         List.of(new SimpleGrantedAuthority("ROLE_" + (role == null ? "USER" : role)))
                 ));

@@ -30,7 +30,7 @@ public class UserController {
             return Mono.just(ResponseEntity.status(401).build());
         }
 
-        return userService.getMe(userId)
+        return userService.getById(userId)
                 .map(UserDto.MeResponse::toMeResponse) // 엔티티 → DTO 매핑
                 .map(ResponseEntity::ok)// 200
                 .defaultIfEmpty(ResponseEntity.notFound().build()); // 없으면 404

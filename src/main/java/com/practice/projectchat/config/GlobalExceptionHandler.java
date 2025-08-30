@@ -1,5 +1,6 @@
 package com.practice.projectchat.config;
 
+import com.practice.projectchat.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,50 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
     }
 
+    //TODO: 이 아래부터는 CustomException 적용함. 이 위에 CustomException으로 처리 안한것들 나중에 수정해야됨
+
+    @ExceptionHandler(AlreadyFriendException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleAlreadyFriends(AlreadyFriendException ex) {
+        var body = new ErrorResponse("ALREADY_FRIENDS", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    @ExceptionHandler(DuplicateFriendRequestException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleDuplicateFriendRequest(DuplicateFriendRequestException ex) {
+        var body = new ErrorResponse("DUPLICATE_REQUEST", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    @ExceptionHandler(FriendRequestNotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestNotFound(FriendRequestNotFoundException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_NOT_FOUND", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(body));
+    }
+
+    @ExceptionHandler(FriendRequestAlreadyHandledException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestAlreadyHandled(FriendRequestAlreadyHandledException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_ALREADY_HANDLED", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    @ExceptionHandler(FriendRequestPermissionException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestPermission(FriendRequestPermissionException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_FORBIDDEN", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body(body));
+    }
+
+    @ExceptionHandler(FriendShipNotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendShipNotFound(FriendShipNotFoundException ex) {
+        var body = new ErrorResponse("FRIENDSHIP_NOT_FOUND", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(body));
+    }
+
+    @ExceptionHandler(AlreadyDeletedException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleAlreadyDeleted(AlreadyDeletedException ex) {
+        var body = new ErrorResponse("FRIENDSHIP_ALREADY_DELETED", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
 
     // 그 밖의 예외 -> 500
     @ExceptionHandler(Throwable.class)
@@ -72,5 +117,7 @@ public class GlobalExceptionHandler {
         var body = new ErrorResponse("INTERNAL_ERROR", "서버 오류가 발생했습니다.", null);
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body));
     }
+
+
 
 }
