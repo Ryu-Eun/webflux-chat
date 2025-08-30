@@ -1,7 +1,6 @@
 package com.practice.projectchat.config;
 
-import com.practice.projectchat.exception.AlreadyFriendException;
-import com.practice.projectchat.exception.DuplicateFriendRequestException;
+import com.practice.projectchat.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +80,24 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
     }
 
+    @ExceptionHandler(FriendRequestNotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestNotFound(FriendRequestNotFoundException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_NOT_FOUND", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(body));
+    }
+
+    @ExceptionHandler(FriendRequestAlreadyHandledException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestAlreadyHandled(FriendRequestAlreadyHandledException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_ALREADY_HANDLED", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    @ExceptionHandler(FriendRequestPermissionException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendRequestPermission(FriendRequestPermissionException ex) {
+        var body = new ErrorResponse("FRIEND_REQUEST_FORBIDDEN", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body(body));
+    }
+
 
     // 그 밖의 예외 -> 500
     @ExceptionHandler(Throwable.class)
@@ -88,5 +105,7 @@ public class GlobalExceptionHandler {
         var body = new ErrorResponse("INTERNAL_ERROR", "서버 오류가 발생했습니다.", null);
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body));
     }
+
+
 
 }
