@@ -40,4 +40,26 @@ public class FriendRequestController {
         return Mono.just(ResponseEntity.ok(body));
     }
 
+    // 수락
+    @PostMapping("/{requestId}/accept")
+    public Mono<ResponseEntity<Void>> accept(
+            @AuthenticationPrincipal String userIdStr,
+            @PathVariable Long requestId
+    ){
+        Long userId = Long.valueOf(userIdStr);
+        return friendRequestService.acceptRequest(requestId, userId)
+                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+    }
+
+    // 거절
+    @PostMapping("/{requestId}/reject")
+    public Mono<ResponseEntity<Void>> reject(
+            @AuthenticationPrincipal String userIdStr,
+            @PathVariable Long requestId
+    ) {
+        Long userId = Long.valueOf(userIdStr);
+        return friendRequestService.rejectRequest(requestId, userId)
+                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+    }
+
 }
