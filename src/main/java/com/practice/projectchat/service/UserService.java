@@ -12,8 +12,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    // 본인 정보 조회
-    public Mono<User> getMe(Long userId) {
+    // userId로 유저 정보 조회
+    public Mono<User> getById(Long userId){
         return userRepository.findById(userId);
     }
 
