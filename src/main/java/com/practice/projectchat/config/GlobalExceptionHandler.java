@@ -1,5 +1,7 @@
 package com.practice.projectchat.config;
 
+import com.practice.projectchat.exception.AlreadyFriendException;
+import com.practice.projectchat.exception.DuplicateFriendRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +64,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public Mono<ResponseEntity<ErrorResponse>> handleDataIntegrity(DataIntegrityViolationException ex) {
         var body = new ErrorResponse("CONFLICT", "데이터 제약 조건 위반", Map.of("reason","DATA_INTEGRITY"));
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    //TODO: 이 아래부터는 CustomException 적용함. 이 위에 CustomException으로 처리 안한것들 나중에 수정해야됨
+
+    @ExceptionHandler(AlreadyFriendException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleAlreadyFriends(AlreadyFriendException ex) {
+        var body = new ErrorResponse("ALREADY_FRIENDS", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
+    @ExceptionHandler(DuplicateFriendRequestException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleDuplicateFriendRequest(DuplicateFriendRequestException ex) {
+        var body = new ErrorResponse("DUPLICATE_REQUEST", ex.getMessage(), null);
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
     }
 
