@@ -98,6 +98,18 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body(body));
     }
 
+    @ExceptionHandler(FriendShipNotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleFriendShipNotFound(FriendShipNotFoundException ex) {
+        var body = new ErrorResponse("FRIENDSHIP_NOT_FOUND", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(body));
+    }
+
+    @ExceptionHandler(AlreadyDeletedException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleAlreadyDeleted(AlreadyDeletedException ex) {
+        var body = new ErrorResponse("FRIENDSHIP_ALREADY_DELETED", ex.getMessage(), null);
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+    }
+
 
     // 그 밖의 예외 -> 500
     @ExceptionHandler(Throwable.class)
