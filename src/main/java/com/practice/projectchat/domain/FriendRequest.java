@@ -28,6 +28,7 @@ public class FriendRequest {
     private Long receiverId;
 
     @Column("status")
+    @Setter
     private RequestStatus status;
 
     @CreatedDate
