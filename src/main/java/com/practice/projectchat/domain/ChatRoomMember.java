@@ -24,6 +24,7 @@ public class ChatRoomMember {
     @Column("user_id")
     private Long userId;
 
+    // 방에 나갔다고 row를 삭제시키지않고, 히스토리를 활용할 수도 있기 때문에 isActive 컬럼으로 true/false 시킨다
     @Column("is_active")
     private Boolean isActive;
 
