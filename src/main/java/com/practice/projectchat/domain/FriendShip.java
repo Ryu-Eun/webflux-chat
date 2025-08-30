@@ -1,5 +1,6 @@
 package com.practice.projectchat.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,7 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.Instant;
 
 @Getter
-@Setter
+@Builder
 @Table(name = "friendships")
 public class FriendShip {
 
