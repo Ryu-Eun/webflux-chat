@@ -16,9 +16,16 @@ import java.time.Instant;
 @Table(name = "chat_rooms")
 public class ChatRoom {
 
+    public static final int MAX_MEMBERS = 50;
+
     @Id
     @Column("id")
     private Long id;
+
+    // 1:1일 경우 방이름은 상대방 닉네임, Group일 경우 상대방 닉네임 나열
+    // 1:1은 name 컬럼에 저장하지 않고, 상대방 닉네임으로 동적 표시. Group은 name 컬럼을 두고 저장, 이후에 수정 가능
+    @Column("name")
+    private String name;
 
     @Column("type")
     private ChatRoomType type;
