@@ -43,6 +43,5 @@ public class ChatMessage {
         TEXT,
         IMAGE,
         SYSTEM,  // 방 생성, 멤버 퇴장같은 이벤트
-        INVITE   // 시스템 이벤트 (방 생성, 초대, 퇴장 등)
     }
 }
