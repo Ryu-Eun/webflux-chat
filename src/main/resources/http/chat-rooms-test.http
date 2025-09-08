@@ -1,0 +1,447 @@
+@baseUrl = http://localhost:8080
+
+### 0) 유저 A~H 회원가입 + 로그인 (signup 응답으로 userId 저장, login 응답으로 token 저장)
+
+### A - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "usera20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저A"
+}
+> {% client.global.set("userAId", response.body.userId); %}
+
+### A - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "usera20001",
+  "password": "Abcd@1234567"
+}
+> {% client.global.set("tokenA", response.body.accessToken); %}
+
+### B - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userb20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저B"
+}
+> {%
+    client.global.set("userBId", response.body.userId);
+%}
+
+### B - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userb20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenB", response.body.accessToken);
+%}
+
+### C - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userc20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저C"
+}
+> {%
+    client.global.set("userCId", response.body.userId);
+%}
+
+### C - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userc20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenC", response.body.accessToken);
+%}
+
+### D - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userd20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저D"
+}
+> {%
+    client.global.set("userDId", response.body.userId);
+%}
+
+### D - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userd20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenD", response.body.accessToken);
+%}
+
+### E - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "usere20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저E"
+}
+> {%
+    client.global.set("userEId", response.body.userId);
+%}
+
+### E - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "usere20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenE", response.body.accessToken);
+%}
+
+### F - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userf20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저F"
+}
+> {%
+    client.global.set("userFId", response.body.userId);
+%}
+
+### F - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userf20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenF", response.body.accessToken);
+%}
+
+### G - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userg20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저G"
+}
+> {%
+    client.global.set("userGId", response.body.userId);
+%}
+
+### G - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userg20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenG", response.body.accessToken);
+%}
+
+### H - signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "loginId": "userh20001",
+  "password": "Abcd@1234567",
+  "nickname": "유저H"
+}
+> {%
+    client.global.set("userHId", response.body.userId);
+%}
+
+### H - login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "userh20001",
+  "password": "Abcd@1234567"
+}
+> {%
+    client.global.set("tokenH", response.body.accessToken);
+%}
+
+### 1) A -> B 친구 요청
+POST {{baseUrl}}/api/v1/friends/requests/send
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "receiverId": {{userBId}}
+}
+
+### 1-1) B가 받은 요청 목록에서 A의 요청 id 찾기
+GET {{baseUrl}}/api/v1/friends/requests/received
+Authorization: Bearer {{tokenB}}
+
+> {%
+    const arr = response.body || [];
+    const userAId = Number(client.global.get("userAId"));
+    const found = arr.find(x => x.requesterId === userAId);
+    if (!found) {
+        client.test("A의 요청이 목록에 있어야 함", function(){ client.assert(false, "A->B 요청 못 찾음"); });
+    } else {
+        client.global.set("reqAB", found.id);
+    }
+%}
+
+### 1-2) B가 수락
+POST {{baseUrl}}/api/v1/friends/requests/{{reqAB}}/accept
+Authorization: Bearer {{tokenB}}
+
+### 2) A가 C와 PRIVATE 시도(실패 기대: 친구 아님)
+POST {{baseUrl}}/api/v1/chat/rooms/private
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "friendId": {{userCId}}
+}
+
+### 3) A-B PRIVATE 생성
+POST {{baseUrl}}/api/v1/chat/rooms/private
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "friendId": {{userBId}}
+}
+> {%
+    client.global.set("roomAB1", String(response.body.roomId));
+%}
+
+### 3-1) 중복 생성 방지 확인(같은 roomId 기대)
+POST {{baseUrl}}/api/v1/chat/rooms/private
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "friendId": {{userBId}}
+}
+> {%
+    const prev = client.global.get("roomAB1");
+    const now  = String(response.body.roomId);
+    client.test("재사용된 PRIVATE 방이어야 한다", function() {
+        client.assert(prev === now, "roomId가 달라요: " + prev + " vs " + now);
+    });
+%}
+
+### 4) B가 A-B PRIVATE 에서 나가기
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomAB1}}/leave
+Authorization: Bearer {{tokenB}}
+
+### 4-1) A가 같은 방에 B만 초대 → 새 PRIVATE 생성(NEW_PRIVATE)
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomAB1}}/invite
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "userIds": [ {{userBId}} ]
+}
+> {%
+    client.test("NEW_PRIVATE 기대", function() {
+        client.assert(response.body.outcome === "NEW_PRIVATE", "outcome = " + response.body.outcome);
+    });
+    client.global.set("roomAB2", String(response.body.roomId));
+%}
+
+### 5) B -> C 친구 요청
+POST {{baseUrl}}/api/v1/friends/requests/send
+Authorization: Bearer {{tokenB}}
+Content-Type: application/json
+
+{
+  "receiverId": {{userCId}}
+}
+
+### 5-1) C가 받은 요청 목록에서 B의 요청 id 찾기
+GET {{baseUrl}}/api/v1/friends/requests/received
+Authorization: Bearer {{tokenC}}
+
+> {%
+    const arr = response.body || [];
+    const userBId = Number(client.global.get("userBId"));
+    const found = arr.find(x => x.requesterId === userBId);
+    if (!found) {
+        client.test("B의 요청이 목록에 있어야 함", function(){ client.assert(false, "B->C 요청 못 찾음"); });
+    } else {
+        client.global.set("reqBC", found.id);
+    }
+%}
+
+### 5-2) C가 수락
+POST {{baseUrl}}/api/v1/friends/requests/{{reqBC}}/accept
+Authorization: Bearer {{tokenC}}
+
+### 5-3) B가 (A-B 최신 PRIVATE) 에 C 초대 → 새 GROUP (NEW_GROUP)
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomAB2}}/invite
+Authorization: Bearer {{tokenB}}
+Content-Type: application/json
+
+{
+  "userIds": [ {{userCId}} ]
+}
+> {%
+    client.test("NEW_GROUP 기대", function() {
+        client.assert(response.body.outcome === "NEW_GROUP", "outcome = " + response.body.outcome);
+    });
+    client.global.set("roomABC", String(response.body.roomId));
+%}
+
+### 6) A가 B,D,E,F,G,H 로 새 GROUP 생성
+POST {{baseUrl}}/api/v1/chat/rooms/group
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "memberIds": [ {{userBId}}, {{userDId}}, {{userEId}}, {{userFId}}, {{userGId}}, {{userHId}} ]
+}
+> {%
+    client.global.set("roomABDEFGH", String(response.body.roomId));
+%}
+
+### 7) 6의 그룹에서 B가 C 초대 → 기존 그룹 UPDATED_GROUP
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/invite
+Authorization: Bearer {{tokenB}}
+Content-Type: application/json
+
+{
+  "userIds": [ {{userCId}} ]
+}
+> {%
+    client.test("UPDATED_GROUP 기대", function() {
+        client.assert(response.body.outcome === "UPDATED_GROUP", "outcome = " + response.body.outcome);
+    });
+%}
+
+### 8) A만 남도록 모두 leave
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenB}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenC}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenD}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenE}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenF}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenG}}
+
+###
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/leave
+Authorization: Bearer {{tokenH}}
+
+### 8-1) A가 B,D를 기존 방에 초대 → 기존 방 재활성(UPDATED_GROUP)
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomABDEFGH}}/invite
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "userIds": [ {{userBId}}, {{userDId}} ]
+}
+> {%
+    client.test("UPDATED_GROUP 기대", function() {
+        client.assert(response.body.outcome === "UPDATED_GROUP", "outcome = " + response.body.outcome);
+    });
+%}
+
+### 9) A의 채팅방 목록 조회 (시각 확인용)
+GET {{baseUrl}}/api/v1/chat/rooms?page=0&size=50
+Authorization: Bearer {{tokenA}}
+
+### 10) (사전) A -> D 친구 요청
+POST {{baseUrl}}/api/v1/friends/requests/send
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "receiverId": {{userDId}}
+}
+
+### 10-1) D가 받은 요청 목록에서 A의 요청 id 찾기
+GET {{baseUrl}}/api/v1/friends/requests/received
+Authorization: Bearer {{tokenD}}
+
+> {%
+    const arr = response.body || [];
+    const userAId = Number(client.global.get("userAId"));
+    const found = arr.find(x => x.requesterId === userAId);
+    if (!found) {
+        client.test("A->D 요청이 목록에 있어야 함", function(){ client.assert(false, "A->D 요청 못 찾음"); });
+    } else {
+        client.global.set("reqAD", found.id);
+    }
+%}
+
+### 10-2) D가 수락
+POST {{baseUrl}}/api/v1/friends/requests/{{reqAD}}/accept
+Authorization: Bearer {{tokenD}}
+
+### 11) A-D PRIVATE 생성
+POST {{baseUrl}}/api/v1/chat/rooms/private
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "friendId": {{userDId}}
+}
+> {%
+    client.global.set("roomAD", String(response.body.roomId));
+%}
+
+### 12) A가 예전 A-B PRIVATE(roomAB1)에서 나가기
+# (roomAB1 변수는 앞 단계에서 이미 저장해둔 A-B 최초 방 id)
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomAB1}}/leave
+Authorization: Bearer {{tokenA}}
+
+### 13) A의 채팅방 목록 재조회 → 새 A-D 포함, 옛 roomAB1 제외
+GET {{baseUrl}}/api/v1/chat/rooms?page=0&size=50
+Authorization: Bearer {{tokenA}}
