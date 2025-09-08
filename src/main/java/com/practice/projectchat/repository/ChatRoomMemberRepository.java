@@ -20,4 +20,7 @@ public interface ChatRoomMemberRepository extends ReactiveCrudRepository<ChatRoo
     // 특정 방에서 특정 유지 조회
     Mono<ChatRoomMember> findByRoomIdAndUserId(Long roomId, Long userId);
 
+    // private 방에서 상대가 나갔어도 이름을 보여주려면, 활성/비활성 구분없이 방의 구성 멤버를 볼 수 있어야함
+    Flux<ChatRoomMember> findByRoomId(Long roomId);
+
 }
