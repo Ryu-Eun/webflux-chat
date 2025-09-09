@@ -6,7 +6,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface FriendShipRepository extends ReactiveCrudRepository<FriendShip, String> {
+public interface FriendShipRepository extends ReactiveCrudRepository<FriendShip, Long> {
 
     // 두 유저가 서로 친구인지 확인 (ACTIVE 상태)
     // 사실 한쪽에서 친구인지만 확인하면 반대쪽에선 확인 안해줘도 되지만 데이터 정합성이 혹시 틀어져있을 수 있어서 양쪽 검사
