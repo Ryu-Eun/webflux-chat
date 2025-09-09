@@ -1,0 +1,22 @@
+@baseUrl = http://localhost:8080
+
+# A와D의 PRIVATE 채팅방, A로 로그인해서 token 발급은 다른 http테스트에서
+# A가 전송한 메시지의 content 내용만 바꿔가면서 최신메시지 5개, 무한 스크롤 테스트도 잘 되는지 테스트
+### A가 TEXT 전송
+POST {{baseUrl}}/api/v1/chat/rooms/{{roomAD}}/messages
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "type": "TEXT",
+  "content": "안녕!!@?!?!!!??!@!!!!!!?????????"
+}
+
+### roomAD 최신 메시지 5개
+GET {{baseUrl}}/api/v1/chat/rooms/{{roomAD}}/messages?limit=5
+Authorization: Bearer {{tokenA}}
+
+### (무한 스크롤) 위 응답의 가장 오래된 createdAt을 before로 넣어 더 과거 5개
+# UTC표현법 KST-9시간: 2025-09-09T02:43:00Z, 날짜와 시간 사이 T, 끝에 Z.
+GET {{baseUrl}}/api/v1/chat/rooms/{{roomAD}}/messages?before=2025-09-09T02:42:00Z&limit=5
+Authorization: Bearer {{tokenA}}

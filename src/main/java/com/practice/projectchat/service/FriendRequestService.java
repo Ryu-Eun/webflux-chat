@@ -29,6 +29,7 @@ public class FriendRequestService {
                         return Mono.error(new AlreadyFriendException("이미 친구 상태입니다."));
                     }
 
+                    // TODO: A가 B에게 친구요청보냈고 PENDING상태일때 A->B로 재요청불가인 동시에 B->A에서도 친구요청 보내는 것 막기 + 자기자신한테 보내는 요청 막기
                     // 2. 기존 요청이 있는지 확인
                     return friendRequestRepository.existsByRequesterIdAndReceiverId(requesterId, receiverId)
                             .flatMap(exists -> {
